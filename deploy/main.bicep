@@ -18,11 +18,13 @@ param clusterAuthorizedIPRanges array = []
 var resourceGroupName = 'bicep-aks-rg'
 var clusterName = 'bicep-aks'
 
+@description('Create resource group')
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
   location: location
 }
 
+@description('Deploy AKS cluster')
 module aks 'modules/aks.bicep' = {
   name: 'aks-${uniqueString(subscription().subscriptionId)}'
   scope: rg
@@ -33,5 +35,15 @@ module aks 'modules/aks.bicep' = {
     clusterName: clusterName
     logAnalyticsWorkspaceResourceGroup: logAnalyticsWorkspaceResourceGroup
     clusterAdminAadGroupObjectId: clusterAdminAadGroupObjectId
+  }
+}
+
+@description('Deploy AKS RBAC role assignments')
+module aksRoleAssignments 'modules/aksRoleAssignments.bicep' = {
+  name: 'aks-role-assignments-${uniqueString(subscription().subscriptionId)}'
+  scope: rg
+  params: {
+    clusterAdminAadGroupObjectId: clusterAdminAadGroupObjectId
+    clusterName: aks.outputs.clusterName
   }
 }
