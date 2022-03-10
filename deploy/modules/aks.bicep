@@ -123,7 +123,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
       dnsServiceIP: '172.16.0.10' // Ip Address for K8s DNS
       dockerBridgeCidr: '172.18.0.1/16' // Used for the default docker0 bridge network that is required when using Docker as the Container Runtime. Not used by AKS or Docker and is only cluster-routable. Cluster IP based addresses are allocated from this range. Can be safely reused in multiple clusters
       loadBalancerProfile: json('null')
-      loadBalancerSku: 'basic'
+      loadBalancerSku: 'standard'
       networkPlugin: 'azure'
       networkPolicy: 'azure'
       outboundType: 'loadBalancer'
