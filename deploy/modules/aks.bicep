@@ -1,4 +1,4 @@
-@description('The Azure region into which the resources should be deployed')
+@description('The azure region into which the resources should be deployed')
 param location string
 
 @description('The name of the AKS cluster')
@@ -6,9 +6,6 @@ param clusterName string
 
 @description('The Azure AD group that will be granted the highly privileged cluster-admin role')
 param clusterAdminAadGroupObjectId string
-
-@description('IP ranges authorized to contact the Kubernetes API server')
-param clusterAuthorizedIPRanges array
 
 @description('The resource group where the log analytics workspace is located')
 param logAnalyticsWorkspaceResourceGroup string
@@ -60,7 +57,6 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
           logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.id
         }
       }
-      
     }
     agentPoolProfiles: [
       {
@@ -71,8 +67,11 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
         maxPods: 30
         minCount: 1
         mode: 'System' // setting this to system type for just k8s system services
+        // nodeTaints: [
+        //   'CriticalAddonsOnly=true:NoSchedule' // adding to ensure that only k8s system services run on these nodes
+        // ]
         orchestratorVersion: kubernetesVersion
-        osDiskSizeGB: 60
+        osDiskSizeGB: 80
         osDiskType: 'Ephemeral'
         osType: 'Linux'
         scaleDownMode: 'Delete'
@@ -83,9 +82,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
         vmSize: 'Standard_DS2_v2'
       }
     ]
-    apiServerAccessProfile: {
-      authorizedIPRanges: clusterAuthorizedIPRanges
-    }
+    apiServerAccessProfile: {}
     autoScalerProfile: {
       'balance-similar-node-groups': 'false'
       'expander': 'random'
@@ -113,11 +110,11 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
     enableRBAC: true
     kubernetesVersion: kubernetesVersion
     // linuxProfile: {
-    //   adminUsername: 'linuxadmin'
+    //   adminUsername: 'adminUserName'
     //   ssh: {
     //     publicKeys: [
     //       {
-    //         keyData: 'string'
+    //         keyData: 'REQUIRED'
     //       }
     //     ]
     //   }
@@ -135,17 +132,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
     nodeResourceGroup: nodeResourceGroupName
     podIdentityProfile: {
       enabled: true
-      // userAssignedIdentities: [
-      //   {
-      //     identity: {
-      //       resourceId: ingressControllerPodIdentity.id
-      //       clientId: ingressControllerPodIdentity.properties.clientId
-      //       objectId: ingressControllerPodIdentity.properties.principalId
-      //     }
-      //     name: ingressControllerPodIdentityName
-      //     namespace: 'ingress-nginx'
-      //   }
-      // ]
+      userAssignedIdentities: []
       userAssignedIdentityExceptions: [
         {
           name: 'flux-extension-exception'
@@ -173,8 +160,8 @@ resource fluxExtension 'Microsoft.KubernetesConfiguration/extensions@2021-09-01'
   scope: aks
   properties: {
     autoUpgradeMinorVersion: true
-    extensionType: 'Microsoft.Flux'
-    releaseTrain: 'Stable'
+    extensionType: 'microsoft.flux'
+    releaseTrain: 'stable'
     scope: {
       cluster: {
         releaseNamespace: 'flux-system'
