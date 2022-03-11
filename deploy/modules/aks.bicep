@@ -64,11 +64,11 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
         count: 1
         enableAutoScaling: true
         maxCount: 2
-        maxPods: 30
+        maxPods: 30 // azure cni default - you can set this value as high as 250
         minCount: 1
         mode: 'System' // setting this to system type for just k8s system services
         // nodeTaints: [
-        //   'CriticalAddonsOnly=true:NoSchedule' // adding to ensure that only k8s system services run on these nodes
+        //   'CriticalAddonsOnly=true:NoSchedule' // // use this to prevent application pods from being scheduled on system node pools
         // ]
         orchestratorVersion: kubernetesVersion
         osDiskSizeGB: 80
