@@ -160,20 +160,20 @@ resource fluxExtension 'Microsoft.KubernetesConfiguration/extensions@2021-09-01'
   scope: aks
   properties: {
     autoUpgradeMinorVersion: true
+    configurationProtectedSettings: {}
+    configurationSettings: {
+      'helm-controller.enabled': 'true'
+      'source-controller.enabled': 'true'
+      'kustomize-controller.enabled': 'true'
+      'notification-controller.enabled': 'true'
+      'image-automation-controller.enabled': 'true'
+      'image-reflector-controller.enabled': 'true'
+    }
     extensionType: 'microsoft.flux'
-    releaseTrain: 'stable'
+    releaseTrain: 'Stable'
     scope: {
       cluster: {
         releaseNamespace: 'flux-system'
-        configurationProtectedSettings: {}
-        configurationSettings: {
-          'helm-controller.enabled': 'true'
-          'source-controller.enabled': 'true'
-          'kustomize-controller.enabled': 'true'
-          'notification-controller.enabled': 'true'
-          'image-automation-controller.enabled': 'true'
-          'image-reflector-controller.enabled': 'true'
-        }
       }
     }
   }
