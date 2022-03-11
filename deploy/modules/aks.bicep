@@ -180,36 +180,21 @@ resource fluxExtension 'Microsoft.KubernetesConfiguration/extensions@2021-09-01'
 }
 
 resource fluxConfiguration 'Microsoft.KubernetesConfiguration/fluxConfigurations@2022-01-01-preview' = {
-  name: 'bootstrap'
+  name: 'flux2-kustomize-helm-example'
   scope: aks
   properties: {
     configurationProtectedSettings: {}
     gitRepository: {
       repositoryRef: {
-        branch: 'main'
+        branch: 'gitops-aks'
       }
       syncIntervalInSeconds: 600
       timeoutInSeconds: 600
-      url: 'https://github.com/fluxcd/flux2-kustomize-helm-example'
+      url: 'https://github.com/thepaulmacca/flux2-kustomize-helm-example'
     }
     kustomizations: {
-      infra: {
-        path: './infrastructure'
-        dependsOn: []
-        timeoutInSeconds: 600
-        syncIntervalInSeconds: 600
-        prune: true
-      }
-      apps: {
-        path: './apps/staging'
-        dependsOn: [
-          {
-            kustomizationName: 'infra'
-          }
-        ]
-        timeoutInSeconds: 600
-        syncIntervalInSeconds: 600
-        retryIntervalInSeconds: 600
+      staging: {
+        path: 'clusters/staging'
         prune: true
       }
     }
